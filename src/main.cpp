@@ -1,5 +1,6 @@
-#include <ast.h>
-#include <core/string.h>
+#include "ast.h"
+#include "core/mem.h"
+#include "token.h"
 
 int main() {
   auto heap = heap_allocator();
@@ -12,6 +13,20 @@ int main() {
       arena_size);
 
   auto allocator = arena_allocator(&arena);
+
+  auto source = make_string(allocator, "1 + 2", 5);
+  auto lexer = Lexer {
+    .source = source,
+    .current = 0,
+  };
+
+  while (true) {
+    auto token = next_token(lexer);
+
+    if (token.kind == Token_Eof) {
+      break;
+    }
+  }
 
   auto left = allocator.new_clone(
       Literal_Expression { .value = Value { .kind = Boolean_Value_Kind, .boolean = false } });

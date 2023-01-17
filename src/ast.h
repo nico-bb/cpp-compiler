@@ -1,6 +1,7 @@
 #pragma once
 #include "error.h"
-#include <value.h>
+#include "token.h"
+#include "value.h"
 
 struct Literal_Expression;
 struct Binary_Expression;
@@ -11,6 +12,7 @@ enum Expression_Kind {
 };
 
 struct Expression {
+  Token token;
   Expression_Kind kind;
   union {
     Literal_Expression *literal;
@@ -35,82 +37,48 @@ struct Binary_Expression {
   Expression right;
 };
 
-Expression literal_expr(Literal_Expression *lit) {
-  return Expression {
-    .kind = Literal_Expression_Kind,
-    .literal = lit,
+Expression literal_expr(Literal_Expression *lit);
+
+Expression binary_expr(Binary_Expression *bin);
+
+Value eval_expr(Expression &expr, Error &err);
+
+/*
+  Statements
+*/
+
+struct Expression_Statement;
+struct Var_Declaration;
+struct Assignment_Statement;
+
+enum Statement_Kind {
+  Expression_Statement_Kind,
+  Var_Declaration_Kind,
+  Assignment_Statement_Kind,
+};
+
+struct Statement {
+  Token token;
+  Statement_Kind kind;
+  union {
+    Expression_Statement *expr_stmt;
+    Var_Declaration *var_decl;
+    Assignment_Statement *assign_stmt;
   };
-}
+};
 
-Expression binary_expr(Binary_Expression *bin) {
-  return Expression {
-    .kind = Binary_Expression_Kind,
-    .binary = bin,
-  };
-}
+struct Expression_Statement {
+  Expression expr;
+};
 
-Value eval_expr(Expression &expr, Error &err) {
-  Value result;
+struct Var_Declaration {
+  String identifier;
+  Token eq_token;
+  Expression initializer;
+};
 
-  switch (expr.kind) {
-  case Literal_Expression_Kind:
-    result = expr.literal->value;
-    break;
-  case Binary_Expression_Kind:
-    auto left = eval_expr(expr.binary->left, err);
-    if (!err.ok()) {
-      return {};
-    }
-
-    auto right = eval_expr(expr.binary->right, err);
-    if (!err.ok()) {
-      return {};
-    }
-
-    Value_Kind expected;
-    switch (expr.binary->op) {
-    case Operator_And:
-    case Operator_Or:
-      expected = Boolean_Value_Kind;
-      break;
-    case Operator_Plus:
-    case Operator_Minus:
-      expected = Number_Value_Kind;
-      break;
-    }
-    if (!check_value_types(expected, left, right)) {
-      err.kind = Error_Mismatched_Types;
-      return {};
-    }
-
-    switch (expr.binary->op) {
-    case Operator_And:
-      result = Value {
-        .kind = Boolean_Value_Kind,
-        .boolean = left.boolean && right.boolean,
-      };
-      break;
-    case Operator_Or:
-      result = Value {
-        .kind = Boolean_Value_Kind,
-        .boolean = left.boolean || right.boolean,
-      };
-      break;
-    case Operator_Plus:
-      result = Value {
-        .kind = Number_Value_Kind,
-        .number = left.number + right.number,
-      };
-      break;
-    case Operator_Minus:
-      result = Value {
-        .kind = Number_Value_Kind,
-        .number = left.number - right.number,
-      };
-      break;
-    }
-    break;
-  }
-
-  return result;
-}
+struct Assignment_Statement {
+  Token eq_token;
+  Expression lhs;
+  Expression rhs;
+};

@@ -8,7 +8,7 @@ const size_t Kilobyte = 1024;
 const size_t Megabyte = 1024 * Kilobyte;
 const size_t Gigabyte = 1024 * Megabyte;
 
-size_t align_forward(size_t offset, size_t align) {
+inline size_t align_forward(size_t offset, size_t align) {
   const auto padding = offset % align;
   if (padding > 0) {
     return offset + (align - padding);
@@ -53,7 +53,7 @@ struct Allocator {
   }
 };
 
-Allocator heap_allocator() {
+inline Allocator heap_allocator() {
   auto alloc_proc = [](Allocator &a, size_t size) -> void * {
     return malloc(size);
   };
@@ -85,30 +85,31 @@ struct Arena {
   size_t offset;
 };
 
-void init_arena(Arena *arena, char *buf, size_t size) {
+inline void init_arena(Arena *arena, char *buf, size_t size) {
   arena->buf = buf;
   arena->total_size = size;
   arena->alignment = DEFAULT_ALIGN;
   arena->offset = 0;
 }
 
-Allocator arena_allocator(Arena *arena) {
+inline Allocator arena_allocator(Arena *arena) {
   auto alloc_proc = [](Allocator &a, size_t size) -> void * {
-    auto arena = static_cast<Arena *>(a.data);
-    arena->offset = align_forward(arena->offset, arena->alignment);
-    auto mem = arena->buf + arena->offset;
-    arena->offset += size;
+    auto _arena = static_cast<Arena *>(a.data);
+    _arena->offset = align_forward(_arena->offset, _arena->alignment);
+    auto mem = _arena->buf + _arena->offset;
+    _arena->offset += size;
 
     return static_cast<void *>(mem);
   };
   auto resize_proc = [](Allocator &a, size_t size, void *old_memory, size_t old_size) -> void * {
     auto new_memory = a.alloc(size);
     memcpy(new_memory, old_memory, old_size);
+    return new_memory;
   };
   auto free_proc = [](Allocator &a, void *memory) {};
   auto free_all_proc = [](Allocator &a) {
-    auto arena = static_cast<Arena *>(a.data);
-    arena->offset = 0;
+    auto _arena = static_cast<Arena *>(a.data);
+    _arena->offset = 0;
   };
 
   auto arena_allocator = Allocator {

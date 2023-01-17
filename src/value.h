@@ -1,5 +1,5 @@
 #pragma once
-#include <core/types.h>
+#include "core/types.h"
 
 enum Value_Kind {
   None_Value_Kind,
@@ -37,6 +37,4 @@ struct Value {
   }
 };
 
-bool check_value_types(Value_Kind expected, Value &v1, Value &v2) {
-  return (v1.kind == expected && v2.kind == expected);
-}
+bool check_value_types(Value_Kind expected, Value &v1, Value &v2);

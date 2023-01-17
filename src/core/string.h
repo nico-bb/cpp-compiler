@@ -1,8 +1,9 @@
 #pragma once
-#include <core/mem.h>
+#include "core/mem.h"
+#include <stdarg.h>
 
 struct String {
-  Allocator &allocator;
+  Allocator allocator;
   size_t length;
   char const *data;
 
@@ -15,7 +16,7 @@ struct String {
       return false;
     }
 
-    for (int i = 0; i < length; i += 1) {
+    for (size_t i = 0; i < length; i += 1) {
       if (data[i] != other[i]) {
         return false;
       }
@@ -25,9 +26,9 @@ struct String {
   }
 };
 
-String make_string(Allocator &a, char const *str, size_t length) {
+inline String make_string(Allocator &a, char const *str, size_t length) {
   auto buf = static_cast<char *>(a.alloc(length * sizeof(char)));
-  for (int i = 0; i < length; i += 1) {
+  for (size_t i = 0; i < length; i += 1) {
     buf[i] = str[i];
   }
 
@@ -40,7 +41,7 @@ String make_string(Allocator &a, char const *str, size_t length) {
   return result;
 }
 
-String slice_string(String &from, size_t start, size_t end) {
+inline String slice_string(String &from, size_t start, size_t end) {
   auto result = String {
     .allocator = from.allocator,
     .length = end - start,
@@ -50,5 +51,6 @@ String slice_string(String &from, size_t start, size_t end) {
   return result;
 }
 
-// bool string_equal(String &str1, String &str2) {
+// inline String sprintf(Allocator &allocator, const char *fmt, ...) {
+
 // }

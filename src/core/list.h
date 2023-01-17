@@ -1,5 +1,5 @@
 #pragma once
-#include <core/mem.h>
+#include "core/mem.h"
 
 #define DEFAULT_INIT_CAP 16
 #define DEFAULT_GROWTH_FACTOR 2
@@ -17,17 +17,18 @@ struct List {
 };
 
 template <typename T>
-List<T> make_list(Allocator &allocator, size_t cap = DEFAULT_INIT_CAP) {
-  return List {
+inline List<T> make_list(Allocator &allocator, size_t cap = DEFAULT_INIT_CAP) {
+  List<T> l = {
     .allocator = allocator,
-    .data = static_cast<T *> allocator.alloc(sizeof(T) * cap),
+    .data = static_cast<T *>(allocator.alloc(sizeof(T) * cap)),
     .length = 0,
     .cap = cap,
   };
+  return l;
 }
 
 template <typename T>
-void delete_list(List<T> &list) {
+inline void delete_list(List<T> &list) {
   list.allocator.free(list.data);
   list.data = nullptr;
   list.length = 0;
@@ -35,7 +36,7 @@ void delete_list(List<T> &list) {
 }
 
 template <typename T>
-void append_list(List<T> &list, T item) {
+inline void append_list(List<T> &list, T item) {
   if (list.length == list.cap) {
     grow_list(list);
   }
@@ -44,12 +45,12 @@ void append_list(List<T> &list, T item) {
 }
 
 template <typename T>
-void clear_list(List<T> &list) {
+inline void clear_list(List<T> &list) {
   list.length = 0;
 }
 
 template <typename T>
-void grow_list(List<T> &list) {
+inline void grow_list(List<T> &list) {
   auto old_memory = list.data;
   auto old_cap = list.cap;
 
