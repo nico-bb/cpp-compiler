@@ -31,6 +31,8 @@ struct Lexer {
   size_t column;
 };
 
+String token_kind_str(Token_Kind kind);
+
 Token next_token(Lexer &lexer);
 
 const char advance(Lexer &lexer);

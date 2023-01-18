@@ -24,6 +24,14 @@ struct String {
 
     return true;
   }
+
+  size_t operator%(size_t mod) {
+    auto sum = 0;
+    for (size_t i = 0; i < length; i += 1) {
+      sum += data[i];
+    }
+    return sum % mod;
+  }
 };
 
 inline String make_string(Allocator &a, char const *str, size_t length) {
@@ -41,6 +49,15 @@ inline String make_string(Allocator &a, char const *str, size_t length) {
   return result;
 }
 
+inline String string_from_literal(const char *literal) {
+  auto result = String {
+    .length = strlen(literal),
+    .data = literal,
+  };
+
+  return result;
+}
+
 inline String slice_string(String &from, size_t start, size_t end) {
   auto result = String {
     .allocator = from.allocator,
@@ -49,6 +66,10 @@ inline String slice_string(String &from, size_t start, size_t end) {
   };
 
   return result;
+}
+
+inline const char *string_cstr(String &string) {
+  return string.data;
 }
 
 // inline String sprintf(Allocator &allocator, const char *fmt, ...) {

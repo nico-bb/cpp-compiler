@@ -1,5 +1,41 @@
 #include "token.h"
 
+String token_kind_str(Token_Kind kind) {
+  String result;
+
+  switch (kind) {
+  case Token_Eof:
+    result = string_from_literal("Token_Eof");
+    break;
+  case Token_Newline:
+    result = string_from_literal("Token_Newline");
+    break;
+  case Token_Number:
+    result = string_from_literal("Token_Number");
+    break;
+  case Token_Comma:
+    result = string_from_literal("Token_Comma");
+    break;
+  case Token_Dot:
+    result = string_from_literal("Token_Dot");
+    break;
+  case Token_Plus:
+    result = string_from_literal("Token_Plus");
+    break;
+  case Token_Minus:
+    result = string_from_literal("Token_Minus");
+    break;
+  case Token_Star:
+    result = string_from_literal("Token_Star");
+    break;
+  case Token_Slash:
+    result = string_from_literal("Token_Slash");
+    break;
+  }
+
+  return result;
+}
+
 Token next_token(Lexer &lexer) {
   Token token;
 

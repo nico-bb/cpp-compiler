@@ -13,6 +13,23 @@ struct Slice {
 };
 
 template <typename T>
+inline Slice<T> make_slice(Allocator allocator, size_t length) {
+  Slice<T> slice = {
+    .allocator = allocator,
+    .data = static_cast<T *>(allocator.alloc(sizeof(T) * length)),
+    .length = length,
+  };
+
+  return slice;
+}
+
+template <typename T>
+inline void delete_slice(Slice<T> &slice) {
+  slice.allocator.free(slice.data);
+  slice.length = 0;
+}
+
+template <typename T>
 inline Slice<T> slice_from_ptr(T *data, size_t length) {
   return Slice {
     .data = data,
