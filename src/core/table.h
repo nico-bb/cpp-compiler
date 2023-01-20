@@ -42,6 +42,25 @@ inline Table<K, V> make_table(Allocator allocator, size_t init_cap) {
 }
 
 template <typename K, typename V>
+inline bool table_has_key(Table<K, V> &table, K key) {
+  auto h = hash_key(key, table.cap);
+  auto entry = &table.entries[h];
+
+  if (entry->open) {
+    return true;
+  }
+
+  while (entry != nullptr) {
+    if (entry->key == key) {
+      return true;
+    }
+    entry = entry->next;
+  }
+
+  return false;
+}
+
+template <typename K, typename V>
 inline V &index_table(Table<K, V> &table, K &key) {
   if (table.length >= table.cap) {
     grow_table(table);

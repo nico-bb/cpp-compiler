@@ -2,6 +2,7 @@
 #include "ast.h"
 #include "core/list.h"
 #include "core/string.h"
+#include "core/table.h"
 #include "token.h"
 
 struct Parser;
@@ -24,11 +25,14 @@ struct Parser {
   Allocator allocator;
   String source;
   List<Statement> ast;
+  Table<Token_Kind, Parser_Rule> rules;
 
   Lexer lexer;
   Token current;
   Token previous;
 };
+
+void init_parser_rules(Parser &parser);
 
 Token &consume_token(Parser &parser);
 

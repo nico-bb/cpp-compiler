@@ -42,6 +42,7 @@ inline void append_list(List<T> &list, T item) {
   }
 
   list.data[list.length] = item;
+  list.length += 1;
 }
 
 template <typename T>
@@ -55,5 +56,6 @@ inline void grow_list(List<T> &list) {
   auto old_cap = list.cap;
 
   list.cap *= DEFAULT_GROWTH_FACTOR;
-  list.data = list.allocator.resize(sizeof(T) * list.cap, old_memory, sizeof(T) * old_cap);
+  auto new_memory = list.allocator.resize(sizeof(T) * list.cap, old_memory, sizeof(T) * old_cap);
+  list.data = static_cast<T *>(new_memory);
 }

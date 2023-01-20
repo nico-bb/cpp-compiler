@@ -41,8 +41,6 @@ Expression literal_expr(Literal_Expression *lit);
 
 Expression binary_expr(Binary_Expression *bin);
 
-Value eval_expr(Expression &expr, Error &err);
-
 /*
   Statements
 */
@@ -82,3 +80,5 @@ struct Assignment_Statement {
   Expression lhs;
   Expression rhs;
 };
+
+Statement expression_stmt(Expression_Statement *expr);
