@@ -1,5 +1,13 @@
 #include "parser.h"
 #include "core/slice.h"
+#include "error.h"
+
+Token &consume_token(Parser &parser);
+Error expect_token(Parser &parser, Token_Kind expected);
+Error expect_next_token(Parser &parser, Token_Kind expected);
+
+Statement parse_next_statement(Parser &parser, Error &err);
+Statement parse_var_declaration(Parser &parser, Error &err);
 
 Expression parse_expression(Parser &parser, Precedence prec, Error &err);
 Expression parse_number_literal(Parser &parser, Error &err);
@@ -22,6 +30,28 @@ Token &consume_token(Parser &parser) {
   parser.previous = parser.current;
   parser.current = next_token(parser.lexer);
   return parser.current;
+}
+
+Error expect_token(Parser &parser, Token_Kind expected) {
+  auto err = Error {};
+  if (parser.current.kind != expected) {
+    err.kind = Error_Invalid_Syntax;
+    err.stage = Error_Stage_Parsing;
+  }
+
+  return err;
+}
+
+Error expect_next_token(Parser &parser, Token_Kind expected) {
+  auto err = Error {};
+  auto token = consume_token(parser);
+
+  if (token.kind != expected) {
+    err.kind = Error_Invalid_Syntax;
+    err.stage = Error_Stage_Parsing;
+  }
+
+  return err;
 }
 
 List<Statement> parse_source_string(Allocator &allocator, String source, Error &err) {
@@ -72,11 +102,13 @@ Statement parse_next_statement(Parser &parser, Error &err) {
     return {};
   }
 
-  auto result = Statement {
-    .token = parser.current,
-  };
+  auto result = Statement {};
   auto token = parser.current;
   switch (token.kind) {
+  case Token_Var:
+    result = parse_var_declaration(parser, err);
+    break;
+
   default: {
     auto expr = parse_expression(parser, Precedence_Lowest, err);
 
@@ -87,11 +119,38 @@ Statement parse_next_statement(Parser &parser, Error &err) {
     expr_stmt->expr = expr;
 
     result = expression_stmt(expr_stmt);
-    result.token = token;
     break;
   }
   }
 
+  result.token = token;
+  return result;
+}
+
+Statement parse_var_declaration(Parser &p, Error &err) {
+  Statement result;
+
+  auto decl = p.allocator.new_raw<Var_Declaration>();
+
+  err = expect_next_token(p, Token_Identifier);
+  if (!err.ok()) {
+    return {};
+  }
+  decl->identifier = p.current;
+
+  err = expect_next_token(p, Token_Eq);
+  if (!err.ok()) {
+    return {};
+  }
+  decl->eq_token = p.current;
+
+  consume_token(p);
+  decl->initializer = parse_expression(p, Precedence_Lowest, err);
+  if (!err.ok()) {
+    return {};
+  }
+
+  result = var_decl(decl);
   return result;
 }
 

@@ -22,3 +22,12 @@ Statement expression_stmt(Expression_Statement *stmt) {
 
   return result;
 }
+
+Statement var_decl(Var_Declaration *decl) {
+  auto result = Statement {
+    .kind = Var_Declaration_Kind,
+    .var_decl = decl,
+  };
+
+  return result;
+}

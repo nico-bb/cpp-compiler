@@ -1,8 +1,8 @@
-#include "core/mem.h"
-#include "core/table.h"
 #include "parser.h"
 #include "stdio.h"
 #include "vm.h"
+
+void debug_tokens(String &source);
 
 int main() {
   auto heap = heap_allocator();
@@ -16,7 +16,9 @@ int main() {
 
   auto allocator = arena_allocator(&arena);
 
-  auto source = make_string(allocator, "1 + 2", 5);
+  auto source = make_string(allocator, "var i = 0", 9);
+
+  debug_tokens(source);
 
   auto err = Error {
     .kind = Error_None,
@@ -33,4 +35,21 @@ int main() {
   heap.free(arena.buf);
 
   return 0;
+}
+
+void debug_tokens(String &source) {
+  auto lexer = Lexer {
+    .source = source,
+  };
+
+  while (true) {
+    auto token = next_token(lexer);
+
+    if (token.kind == Token_Eof) {
+      break;
+    }
+
+    auto token_str = token_kind_str(token.kind);
+    printf("%s\n", string_cstr(token_str));
+  }
 }

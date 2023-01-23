@@ -4,7 +4,10 @@
 enum Error_Kind {
   Error_None,
   Error_Invalid_Token,
+  Error_Invalid_Syntax,
   Error_Mismatched_Types,
+  Error_Unknown_Symbol,
+  Error_Redeclared_Symbol,
 };
 
 enum Error_Stage {
@@ -23,3 +26,6 @@ struct Error {
     return kind == Error_None;
   }
 };
+
+inline void print_error(Error &err) {
+}

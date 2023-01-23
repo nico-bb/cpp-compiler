@@ -38,7 +38,7 @@ inline Slice<T> slice_from_ptr(T *data, size_t length) {
 }
 
 template <typename T>
-inline bool slice_contains(Slice<T> &slice, T key) {
+inline bool slice_contains(Slice<T> &slice, T &key) {
   for (size_t i = 0; i < slice.length; i += 1) {
     if (key == slice.data[i]) {
       return true;
@@ -46,4 +46,15 @@ inline bool slice_contains(Slice<T> &slice, T key) {
   }
 
   return false;
+}
+
+template <typename T>
+inline size_t slice_index_of(Slice<T> &slice, T &key) {
+  for (size_t i = 0; i < slice.length; i += 1) {
+    if (key == slice.data[i]) {
+      return i;
+    }
+  }
+
+  return -1;
 }

@@ -5,6 +5,9 @@ enum Token_Kind {
   Token_Eof,
   Token_Newline,
 
+  Token_Var,
+  Token_Identifier,
+
   Token_Number,
 
   Token_Comma,
@@ -13,6 +16,7 @@ enum Token_Kind {
   Token_Minus,
   Token_Star,
   Token_Slash,
+  Token_Eq,
 };
 
 struct Token {
@@ -34,15 +38,3 @@ struct Lexer {
 String token_kind_str(Token_Kind kind);
 
 Token next_token(Lexer &lexer);
-
-const char advance(Lexer &lexer);
-
-const char peek(Lexer &lexer);
-
-bool is_eof(Lexer &lexer);
-
-bool is_letter(const char c);
-
-bool is_number(const char c);
-
-void skip_whitespaces(Lexer &lexer);

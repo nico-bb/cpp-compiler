@@ -34,10 +34,4 @@ struct Parser {
 
 void init_parser_rules(Parser &parser);
 
-Token &consume_token(Parser &parser);
-
 List<Statement> parse_source_string(Allocator &allocator, String source, Error &err);
-
-Statement parse_next_statement(Parser &parser, Error &err);
-
-Expression parse_expression(Parser &parser, Error &err);

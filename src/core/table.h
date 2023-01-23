@@ -46,7 +46,7 @@ inline bool table_has_key(Table<K, V> &table, K key) {
   auto h = hash_key(key, table.cap);
   auto entry = &table.entries[h];
 
-  if (entry->open) {
+  if (!entry->open) {
     return true;
   }
 

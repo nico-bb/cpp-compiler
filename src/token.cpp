@@ -1,4 +1,28 @@
 #include "token.h"
+#include "core/pair.h"
+#include "core/slice.h"
+
+const char advance(Lexer &lexer);
+
+const char peek(Lexer &lexer);
+
+bool is_eof(Lexer &lexer);
+
+bool is_letter(const char c);
+
+bool is_number(const char c);
+
+void lex_number(Lexer &lexer);
+
+void lex_identifier(Lexer &lexer);
+
+void skip_whitespaces(Lexer &lexer);
+
+Token_Kind keyword_token(String &string);
+
+/*
+  Procedures Implementation
+*/
 
 String token_kind_str(Token_Kind kind) {
   String result;
@@ -9,6 +33,12 @@ String token_kind_str(Token_Kind kind) {
     break;
   case Token_Newline:
     result = string_from_literal("Token_Newline");
+    break;
+  case Token_Var:
+    result = string_from_literal("Token_Var");
+    break;
+  case Token_Identifier:
+    result = string_from_literal("Token_Identifier");
     break;
   case Token_Number:
     result = string_from_literal("Token_Number");
@@ -30,6 +60,9 @@ String token_kind_str(Token_Kind kind) {
     break;
   case Token_Slash:
     result = string_from_literal("Token_Slash");
+    break;
+  case Token_Eq:
+    result = string_from_literal("Token_Eq");
     break;
   }
 
@@ -76,18 +109,17 @@ Token next_token(Lexer &lexer) {
   case '/':
     token.kind = Token_Slash;
     break;
+  case '=':
+    token.kind = Token_Eq;
+    break;
   default: {
     if (is_number(c)) {
       token.kind = Token_Number;
-
-      while (!is_eof(lexer)) {
-        auto next = peek(lexer);
-        if (!is_number(next)) {
-          break;
-        }
-
-        advance(lexer);
-      }
+      lex_number(lexer);
+    } else if (is_letter(c)) {
+      lex_identifier(lexer);
+      auto identifier = slice_string(lexer.source, token.start, lexer.current);
+      token.kind = keyword_token(identifier);
     }
     break;
   }
@@ -120,6 +152,29 @@ bool is_number(const char c) {
   return c >= '0' && c <= '9';
 }
 
+void lex_number(Lexer &lexer) {
+  while (!is_eof(lexer)) {
+    auto next = peek(lexer);
+    if (!is_number(next)) {
+      break;
+    }
+
+    advance(lexer);
+  }
+}
+
+void lex_identifier(Lexer &lexer) {
+  while (!is_eof(lexer)) {
+    auto next = peek(lexer);
+
+    // FIXME: Disallow leading and trailing underscores
+    if (!is_letter(next) && next != '_') {
+      break;
+    }
+    advance(lexer);
+  }
+}
+
 void skip_whitespaces(Lexer &lexer) {
   while (!is_eof(lexer)) {
     auto c = peek(lexer);
@@ -130,4 +185,21 @@ void skip_whitespaces(Lexer &lexer) {
       break;
     }
   }
+}
+
+Token_Kind keyword_token(String &keyword) {
+  static const size_t pair_count = 1;
+  static Pair<String, Token_Kind> p[pair_count] = {
+    { .first = string_from_literal("var"), .second = Token_Var },
+  };
+  static Slice<Pair<String, Token_Kind>> pairs = slice_from_ptr(p, pair_count);
+
+  for (size_t i = 0; i < pairs.length; i += 1) {
+    auto pair = pairs[i];
+    if (pair.first == keyword) {
+      return pair.second;
+    }
+  }
+
+  return Token_Identifier;
 }

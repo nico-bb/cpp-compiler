@@ -70,7 +70,7 @@ struct Expression_Statement {
 };
 
 struct Var_Declaration {
-  String identifier;
+  Token identifier;
   Token eq_token;
   Expression initializer;
 };
@@ -82,3 +82,4 @@ struct Assignment_Statement {
 };
 
 Statement expression_stmt(Expression_Statement *expr);
+Statement var_decl(Var_Declaration *decl);

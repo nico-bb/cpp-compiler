@@ -21,6 +21,23 @@ void run_stmt(Vm &vm, Statement stmt, Error &err) {
   switch (stmt.kind) {
   case Expression_Statement_Kind:
     eval_expr(stmt.expr_stmt->expr, err);
+  case Var_Declaration_Kind: {
+    auto decl = stmt.var_decl;
+    auto id = decl->identifier.text;
+
+    if (table_has_key(vm.variables, id)) {
+      err.stage = Error_Stage_Runtime;
+      err.kind = Error_Redeclared_Symbol;
+      return;
+    }
+
+    auto initializer = eval_expr(decl->initializer, err);
+    if (!err.ok()) {
+      return;
+    }
+    vm.variables[id] = initializer;
+    break;
+  }
   default:
     break;
   }
